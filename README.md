@@ -25,20 +25,49 @@ React.
 
 ### Description des composants
 
-- [src/pages/game.tsx](src/pages/game.tsx) : page principale du jeu, orchestre le header et le bouton de clic.
-- [src/components/GameHeader.tsx](src/components/GameHeader.tsx) : bandeau supérieur avec le titre et les indicateurs de partie.
-- [src/components/MoneyDisplay.tsx](src/components/MoneyDisplay.tsx) : affiche le montant d’argent courant avec le format abrégé.
-- [src/components/ClickButton.tsx](src/components/ClickButton.tsx) : bouton d’action qui déclenche l’ajout d’argent à chaque clic.
-- [src/utils/formatNumber.tsx](src/utils/formatNumber.tsx) : utilitaire de formatage (`K`, `M`, `B`) pour l’affichage des montants.
+- [src/pages/game.tsx](src/pages/game.tsx) : page du jeu et orchestration des états.
+- [src/components/GameHeader.tsx](src/components/GameHeader.tsx) : affiche le titre, l’argent et le revenu/sec.
+- [src/components/MoneyDisplay.tsx](src/components/MoneyDisplay.tsx) : affiche l’argent formaté.
+- [src/components/ClickButton.tsx](src/components/ClickButton.tsx) : bouton qui ajoute de l’argent au clic.
+- [src/utils/formatNumber.tsx](src/utils/formatNumber.tsx) : formatage `K`, `M`, `B`.
 
 ### Où se trouve le state
 
-- Le state principal du TP6 est `money` dans [src/pages/game.tsx](src/pages/game.tsx).
-- Il est déclaré avec `useState(0)` dans le composant de page.
+- Le state principal est `money` dans [src/pages/game.tsx](src/pages/game.tsx).
+- Il est créé avec `useState(0)` dans la page.
 
 ### Comment remonte l’événement
 
-1. [src/pages/game.tsx](src/pages/game.tsx) crée la fonction `handleClick` qui met à jour `money` via `setMoney`.
-2. Cette fonction est passée en prop `onClick` à [src/components/ClickButton.tsx](src/components/ClickButton.tsx).
-3. Au clic, [src/components/ClickButton.tsx](src/components/ClickButton.tsx) exécute `onClick`.
-4. Le state `money` est mis à jour dans [src/pages/game.tsx](src/pages/game.tsx), puis la nouvelle valeur est redescendue en prop `amount` vers [src/components/GameHeader.tsx](src/components/GameHeader.tsx), puis vers [src/components/MoneyDisplay.tsx](src/components/MoneyDisplay.tsx).
+1. [src/pages/game.tsx](src/pages/game.tsx) crée `handleClick` et met à jour `money`.
+2. `handleClick` est passé en prop `onClick` à [src/components/ClickButton.tsx](src/components/ClickButton.tsx).
+3. Au clic, le bouton appelle `onClick`.
+4. `money` remonte dans [src/components/GameHeader.tsx](src/components/GameHeader.tsx) puis [src/components/MoneyDisplay.tsx](src/components/MoneyDisplay.tsx).
+
+### Gestion du tick
+
+- L’interval est créé dans [src/pages/Game.tsx](src/pages/Game.tsx) dans `useEffect`.
+- Il ajoute `incomePerSecond` à `money` toutes les secondes.
+- Il est nettoyé avec `window.clearInterval(intervalId)` au démontage.
+- Si `incomePerSecond` change, l’ancien interval est remplacé.
+
+Pourquoi c’est important :
+
+- Un seul interval reste actif.
+- Pas de doublon après navigation ou hot reload.
+- Sinon le jeu accélère car plusieurs ticks s’additionnent.
+
+### Preuve du bon fonctionnement
+
+- Le log temporaire montre 1 message par seconde si l’interval est unique.
+- Plusieurs logs par secondes permettent de vérifier si il y a un décalage
+- Un interval mal géré accélère le jeu parce que chaque interval ajoute son propre tick.
+- Le cleanup évite cette accumulation.
+
+### Analyse Event Loop
+
+1. `setInterval` ne met pas le code dans la Call stack directement : il enregistre un callback à exécuter plus tard.
+2. Le callback attend d’abord dans les Web APIs du navigateur.
+3. Quand le délai est atteint, il passe dans la Task queue (macrotask).
+4. Il n’entre dans la Call stack que quand elle est libre.
+5. Si le thread principal est occupé, le callback reste en attente.
+6. Le timer peut donc être retardé par du rendu, du calcul ou d’autres tâches JavaScript.

@@ -2,9 +2,13 @@ import MoneyDisplay from "./MoneyDisplay";
 
 interface GameHeaderProps {
   amount: number;
+  incomePerSecond: number;
 }
 
-export default function GameHeader({ amount }: GameHeaderProps) {
+export default function GameHeader({
+  amount,
+  incomePerSecond,
+}: GameHeaderProps) {
   return (
     <div
       style={{
@@ -21,10 +25,7 @@ export default function GameHeader({ amount }: GameHeaderProps) {
       <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
         <MoneyDisplay amount={amount} />
 
-        {/* IncomeDisplay placeholder pour les TP suivants */}
-        <div style={{ color: "#999", fontSize: "14px" }}>
-          Revenu/s: -- (à venir)
-        </div>
+        <div>Income/sec: ${incomePerSecond}</div>
       </div>
     </div>
   );
