@@ -1,7 +1,7 @@
 import { useState, useEffect, MouseEvent, ReactNode } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Game from "./pages/game";
+import Game from "./pages/Game";
 import Shop from "./pages/shop";
 import Stats from "./pages/stats";
 import Settings from "./pages/settings";
