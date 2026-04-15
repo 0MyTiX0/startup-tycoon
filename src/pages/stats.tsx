@@ -1,12 +1,31 @@
 import React from "react";
 import GameHeader from "../components/GameHeader";
+import type { Upgrade } from "../data/dataUpgrades";
 
-export default function Stats() {
+interface StatsProps {
+  money: number;
+  incomePerSecond: number;
+  upgrades: Upgrade[];
+}
+
+export default function Stats({
+  money,
+  incomePerSecond,
+  upgrades,
+}: StatsProps) {
+  const totalOwnedUpgrades = upgrades.reduce(
+    (total, upgrade) => total + upgrade.count,
+    0,
+  );
+
   return (
     <div>
-      <GameHeader amount={0} incomePerSecond={0} />
+      <GameHeader amount={money} incomePerSecond={incomePerSecond} />
       <h1>Stats</h1>
       <p>Regarder les statistiques de votre jeu.</p>
+      <p>Argent actuel: {money}$</p>
+      <p>Income/sec actuel: +{incomePerSecond}$/sec</p>
+      <p>Upgrades possédés: {totalOwnedUpgrades}</p>
     </div>
   );
 }

@@ -9,31 +9,42 @@ export default function Navbar({ onNavigate, currentPath }: NavbarProps) {
   const isActive = (path: string) => currentPath === path;
 
   return (
-    <nav style={{ padding: "10px", borderBottom: "1px solid #ccc" }}>
+    <>
       <style>
         {`
-          a {
+          .navbar {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+          }
+
+          .navbar a {
             margin: 0 10px;
             text-decoration: none;
             color: #333;
           }
+
+          .navbar a:hover {
+            text-decoration: underline;
+          }
         `}
       </style>
-      <a href="/game" onClick={(e) => onNavigate("/game", e)}>
-        Jeu
-      </a>
+      <nav className="navbar">
+        <a href="/game" onClick={(e) => onNavigate("/game", e)}>
+          Jeu
+        </a>
 
-      <a href="/shop" onClick={(e) => onNavigate("/shop", e)}>
-        Boutique
-      </a>
+        <a href="/shop" onClick={(e) => onNavigate("/shop", e)}>
+          Boutique
+        </a>
 
-      <a href="/stats" onClick={(e) => onNavigate("/stats", e)}>
-        Stats
-      </a>
+        <a href="/stats" onClick={(e) => onNavigate("/stats", e)}>
+          Stats
+        </a>
 
-      <a href="/settings" onClick={(e) => onNavigate("/settings", e)}>
-        Parametres
-      </a>
-    </nav>
+        <a href="/settings" onClick={(e) => onNavigate("/settings", e)}>
+          Parametres
+        </a>
+      </nav>
+    </>
   );
 }

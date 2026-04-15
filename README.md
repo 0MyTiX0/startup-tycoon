@@ -71,3 +71,10 @@ Pourquoi c’est important :
 4. Il n’entre dans la Call stack que quand elle est libre.
 5. Si le thread principal est occupé, le callback reste en attente.
 6. Le timer peut donc être retardé par du rendu, du calcul ou d’autres tâches JavaScript.
+
+## Observation du besoin de state global
+
+1. `money` et `incomePerSecond` vivent dans [src/App.tsx](src/App.tsx), puis sont passés aux pages via des props.
+2. Oui. [src/pages/game.tsx](src/pages/game.tsx) et [src/pages/shop.tsx](src/pages/shop.tsx) utilisent les mêmes données: argent, revenu/sec, et état des upgrades.
+3. Les données sont partagées via le "lifting state up": état centralisé dans [src/App.tsx](src/App.tsx), callbacks passés aux pages (`onCollect`, `onBuyUpgrade`) et rendu piloté par props.
+4. La solution devient fragile avec le prop drilling: beaucoup de props à faire transiter, couplage plus fort entre pages/composants, maintenance plus lourde quand on ajoute de nouvelles vues ou nouvelles stats partagées.

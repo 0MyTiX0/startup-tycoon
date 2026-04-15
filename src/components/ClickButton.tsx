@@ -7,22 +7,35 @@ interface ClickButtonProps {
 
 export default function ClickButton({ clickValue, onClick }: ClickButtonProps) {
   return (
-    <button
-      onClick={onClick}
-      style={{
-        padding: "10px 20px",
-        fontSize: "16px",
-        cursor: "pointer",
-        backgroundColor: "#4CAF50",
-        color: "white",
-        border: "none",
-        borderRadius: "5px",
-      }}
-    >
-      <div style={{ fontWeight: "bold" }}>Développer</div>
-      <div style={{ fontSize: "14px", marginTop: "5px" }}>
-        +{clickValue}$ / clic
-      </div>
-    </button>
+    <>
+      <style>{`
+        .click-button {
+          padding: 10px 20px;
+          font-size: 16px;
+          cursor: pointer;
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          border-radius: 5px;
+        }
+
+        .click-button:hover {
+          background-color: #45a049;
+        }
+
+        .click-button-title {
+          font-weight: bold;
+        }
+
+        .click-button-value {
+          font-size: 14px;
+          margin-top: 5px;
+        }
+      `}</style>
+      <button className="click-button" onClick={onClick}>
+        <div className="click-button-title">Développer</div>
+        <div className="click-button-value">+{clickValue}$ / clic</div>
+      </button>
+    </>
   );
 }
