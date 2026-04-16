@@ -78,3 +78,58 @@ Pourquoi c’est important :
 2. Oui. [src/pages/game.tsx](src/pages/game.tsx) et [src/pages/shop.tsx](src/pages/shop.tsx) utilisent les mêmes données: argent, revenu/sec, et état des upgrades.
 3. Les données sont partagées via le "lifting state up": état centralisé dans [src/App.tsx](src/App.tsx), callbacks passés aux pages (`onCollect`, `onBuyUpgrade`) et rendu piloté par props.
 4. La solution devient fragile avec le prop drilling: beaucoup de props à faire transiter, couplage plus fort entre pages/composants, maintenance plus lourde quand on ajoute de nouvelles vues ou nouvelles stats partagées.
+
+## Structure du state global
+
+Le state global est défini dans [src/state/gameStore.tsx](src/state/gameStore.tsx).
+
+Structure actuelle:
+
+- `money` : argent disponible.
+- `clickValue` : valeur gagnée à chaque clic.
+- `incomePerSecond` : revenu automatique par seconde.
+- `upgrades` : liste des upgrades avec leur compteur.
+- `totalClicks` : nombre total de clics effectués.
+- `totalEarned` : argent total généré par le tick.
+
+## Liste des actions
+
+Les actions sont définies dans [src/state/gameStore.tsx](src/state/gameStore.tsx).
+
+- `CLICK` : augmente `money` de `clickValue` et incrémente `totalClicks`.
+- `TICK` : ajoute `incomePerSecond` à `money` et incrémente `totalEarned`.
+- `BUY_UPGRADE` : reçoit `upgradeId`, vérifie les fonds, décrémente `money`, incrémente `count`, met à jour `incomePerSecond`.
+- `RESET_GAME` : remet le state à zéro.
+
+## Où se trouve le tick
+
+Le tick est déclenché dans [src/App.tsx](src/App.tsx) avec un `useEffect` qui envoie `dispatch({ type: "TICK" })` toutes les secondes.
+
+Pourquoi ici:
+
+- le tick est global et ne dépend pas de la page affichée;
+- il continue même si l'utilisateur navigue vers Shop, Stats ou Settings;
+- le state reste centralisé au même endroit.
+
+## Schéma du flux unidirectionnel
+
+![Schéma du flux unidirectionnel](src/assets/schema.png)
+
+## Justification de l’architecture choisie
+
+L’application utilise `Context + reducer` parce que c’est une solution simple, adaptée à React, et suffisante pour un state partagé de petite taille.
+
+- Lecture du state depuis un point unique via le store.
+- Modifications uniquement via des actions.
+- Flux unidirectionnel clair: vue -> action -> reducer -> nouveau state -> render.
+- Moins de props à transmettre entre les pages et les composants.
+- Plus facile à faire évoluer quand on ajoute de nouvelles statistiques ou de nouvelles actions.
+
+## Vérifications manuelles
+
+Tests à faire dans l’application:
+
+1. Cliquer dans Game augmente `money` dans Game et dans la Navbar.
+2. Acheter un upgrade dans Shop augmente `income/sec` dans Shop et dans la Navbar.
+3. Rester sur Shop pendant plusieurs secondes: `money` continue d’augmenter grâce au tick global.
+4. Passer de Game à Shop puis à Stats: les valeurs restent synchronisées partout.

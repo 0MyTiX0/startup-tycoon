@@ -1,7 +1,10 @@
+import { formatMoney } from "../utils/formatNumber";
+
 interface UpgradeCardProps {
   name: string;
   count: number;
   cost: number;
+  kind: "click" | "income";
   gain: number;
   canBuy: boolean;
   onBuy: () => void;
@@ -11,10 +14,15 @@ export default function UpgradeCard({
   name,
   count,
   cost,
+  kind,
   gain,
   canBuy,
   onBuy,
 }: UpgradeCardProps) {
+  const kindLabel = kind === "click" ? "Upgrade de clic" : "Upgrade d'income/s";
+  const gainLabel = kind === "click" ? "+" : "+";
+  const gainSuffix = kind === "click" ? " valeur de clic" : " revenu/s";
+
   return (
     <>
       <style>{`
@@ -36,6 +44,25 @@ export default function UpgradeCard({
         .upgrade-info {
           font-size: 14px;
           color: #666;
+        }
+
+        .upgrade-badge {
+          display: inline-block;
+          padding: 4px 8px;
+          border-radius: 999px;
+          font-size: 12px;
+          font-weight: 700;
+          margin-bottom: 8px;
+        }
+
+        .upgrade-badge.click {
+          background-color: #dbeafe;
+          color: #1d4ed8;
+        }
+
+        .upgrade-badge.income {
+          background-color: #dcfce7;
+          color: #166534;
         }
 
         .upgrade-info p {
@@ -69,15 +96,23 @@ export default function UpgradeCard({
 
       <div className="upgrade-card">
         <h3>{name}</h3>
+        <div
+          className={`upgrade-badge ${kind === "click" ? "click" : "income"}`}
+        >
+          {kindLabel}
+        </div>
         <div className="upgrade-info">
           <p>
             <strong>Coût actuel:</strong> {cost}$
           </p>
           <p>
-            <strong>Revenu/s:</strong> +{gain}$
+            <strong>{kind === "click" ? "Bonus clic" : "Revenu/s"}:</strong>{" "}
+            {gainLabel}
+            {formatMoney(gain)}
+            {gainSuffix}
           </p>
           <p>
-            <strong>Quantité:</strong> {count}
+            <strong>Quantité:</strong> {formatMoney(count)}
           </p>
         </div>
         <button className="upgrade-button" onClick={onBuy} disabled={!canBuy}>

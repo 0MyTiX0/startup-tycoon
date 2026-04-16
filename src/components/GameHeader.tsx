@@ -1,4 +1,5 @@
 import MoneyDisplay from "./MoneyDisplay";
+import { formatMoney } from "../utils/formatNumber";
 
 interface GameHeaderProps {
   amount: number;
@@ -44,7 +45,7 @@ export default function GameHeader({
 
           <div className="income-display">
             {typeof incomePerSecond === "number"
-              ? `Income/sec: $${incomePerSecond}`
+              ? `Income/sec: $${formatMoney(incomePerSecond)}`
               : "Revenu/s: -- (à venir)"}
           </div>
         </div>

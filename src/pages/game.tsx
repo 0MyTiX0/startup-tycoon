@@ -1,20 +1,21 @@
 import GameHeader from "../components/GameHeader";
 import ClickButton from "../components/ClickButton";
+import { useGameStore } from "../state/gameStore";
 
-interface GameProps {
-  money: number;
-  incomePerSecond: number;
-  onCollect: () => void;
-}
-
-export default function Game({ money, incomePerSecond, onCollect }: GameProps) {
-  const clickValue = 1;
+export default function Game() {
+  const {
+    state: { money, incomePerSecond, clickValue },
+    dispatch,
+  } = useGameStore();
 
   return (
     <div>
       <GameHeader amount={money} incomePerSecond={incomePerSecond} />
       <div style={{ textAlign: "center" }}>
-        <ClickButton clickValue={clickValue} onClick={onCollect} />
+        <ClickButton
+          clickValue={clickValue}
+          onClick={() => dispatch({ type: "CLICK" })}
+        />
       </div>
     </div>
   );

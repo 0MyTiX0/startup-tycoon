@@ -1,26 +1,20 @@
 import { useState } from "react";
 import GameHeader from "../components/GameHeader";
 import UpgradeCard from "../components/UpgradeCard";
-import type { Upgrade } from "../data/dataUpgrades";
+import { useGameStore } from "../state/gameStore";
+import { formatMoney } from "../utils/formatNumber";
 
-interface ShopProps {
-  money: number;
-  incomePerSecond: number;
-  upgrades: Upgrade[];
-  onBuyUpgrade: (upgradeId: string) => boolean;
-}
+export default function Shop() {
+  const {
+    state: { money, incomePerSecond, upgrades },
+    dispatch,
+  } = useGameStore();
 
-export default function Shop({
-  money,
-  incomePerSecond,
-  upgrades,
-  onBuyUpgrade,
-}: ShopProps) {
   const [feedbackMessage, setFeedbackMessage] = useState(
     "Sélectionnez un upgrade à acheter.",
   );
 
-  const getCurrentCost = (upgrade: Upgrade) =>
+  const getCurrentCost = (upgrade: (typeof upgrades)[number]) =>
     Math.round(upgrade.initialCost * Math.pow(1.15, upgrade.count));
 
   const handleBuy = (upgradeId: string) => {
@@ -32,16 +26,24 @@ export default function Shop({
       return;
     }
 
-    const success = onBuyUpgrade(upgradeId);
+    const success = money >= getCurrentCost(selectedUpgrade);
 
     if (!success) {
       setFeedbackMessage(
-        `Achat refusé pour ${selectedUpgrade.name}. Fonds insuffisants.`,
+        `Achat refusé pour ${selectedUpgrade.name}. Fonds insuffisants: ${formatMoney(money)}$.`,
       );
       return;
     }
 
-    setFeedbackMessage(`Achat réussi: ${selectedUpgrade.name}`);
+    dispatch({ type: "BUY_UPGRADE", payload: { upgradeId } });
+
+    setFeedbackMessage(
+      `Achat réussi: ${selectedUpgrade.name} (+${formatMoney(
+        selectedUpgrade.category === "click"
+          ? selectedUpgrade.clickValueGain
+          : selectedUpgrade.incomePerSecond,
+      )})`,
+    );
   };
 
   return (
@@ -81,7 +83,12 @@ export default function Shop({
                 name={upgrade.name}
                 count={upgrade.count}
                 cost={currentCost}
-                gain={upgrade.incomePerSecond}
+                kind={upgrade.category}
+                gain={
+                  upgrade.category === "click"
+                    ? upgrade.clickValueGain
+                    : upgrade.incomePerSecond
+                }
                 canBuy={canBuy}
                 onBuy={() => handleBuy(upgrade.id)}
               />

@@ -2,18 +2,31 @@ export const formatMoney = (value: number): string => {
   const absValue = Math.abs(value);
 
   if (absValue < 1_000) {
-    return value.toString();
+    return Number(value.toFixed(2)).toString();
   }
 
-  if (absValue < 1_000_000) {
-    return `${Number((value / 1_000).toFixed(2)).toString()}K`;
-  }
+  const suffixes = [
+    "K",
+    "M",
+    "B",
+    "T",
+    "Qa",
+    "Qi",
+    "Sx",
+    "Sp",
+    "Oc",
+    "No",
+    "Dc",
+  ];
+  const exponent = Math.min(
+    Math.floor(Math.log10(absValue) / 3),
+    suffixes.length,
+  );
 
-  if (absValue < 1_000_000_000) {
-    return `${Number((value / 1_000_000).toFixed(2)).toString()}M`;
-  }
+  const scaledValue = value / 1_000 ** exponent;
+  const suffix = suffixes[exponent - 1] ?? "";
 
-  return `${Number((value / 1_000_000_000).toFixed(2)).toString()}B`;
+  return `${Number(scaledValue.toFixed(2)).toString()}${suffix}`;
 };
 
 export default formatMoney;
