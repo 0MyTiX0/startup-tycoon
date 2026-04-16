@@ -1,4 +1,3 @@
-import React from "react";
 import GameHeader from "../components/GameHeader";
 import type { Upgrade } from "../data/dataUpgrades";
 
@@ -20,7 +19,7 @@ export default function Stats({
 
   return (
     <div>
-      <GameHeader amount={money} incomePerSecond={incomePerSecond} />
+      <GameHeader />
       <h1>Stats</h1>
       <p>Regarder les statistiques de votre jeu.</p>
       <p>Argent actuel: {money}$</p>

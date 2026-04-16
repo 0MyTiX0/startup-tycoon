@@ -17,6 +17,49 @@ export default function Shop() {
   const getCurrentCost = (upgrade: (typeof upgrades)[number]) =>
     Math.round(upgrade.initialCost * Math.pow(1.15, upgrade.count));
 
+  const sortedUpgrades = [...upgrades].sort((firstUpgrade, secondUpgrade) => {
+    if (firstUpgrade.category !== secondUpgrade.category) {
+      return firstUpgrade.initialCost - secondUpgrade.initialCost;
+    }
+
+    return firstUpgrade.initialCost - secondUpgrade.initialCost;
+  });
+
+  const clickUpgrades = sortedUpgrades.filter(
+    (upgrade) => upgrade.category === "click",
+  );
+  const productionUpgrades = sortedUpgrades.filter(
+    (upgrade) => upgrade.category === "production",
+  );
+  const incomeUpgrades = sortedUpgrades.filter(
+    (upgrade) => upgrade.category === "income",
+  );
+
+  const renderUpgradeCard = (upgrade: (typeof upgrades)[number]) => {
+    const currentCost = getCurrentCost(upgrade);
+    const canBuy = money >= currentCost;
+
+    return (
+      <UpgradeCard
+        key={upgrade.id}
+        name={upgrade.name}
+        description={upgrade.description}
+        count={upgrade.count}
+        cost={currentCost}
+        kind={upgrade.category}
+        gain={
+          upgrade.category === "click"
+            ? upgrade.clickValueGain
+            : upgrade.category === "income"
+              ? upgrade.incomePerSecond
+              : upgrade.productionBoost
+        }
+        canBuy={canBuy}
+        onBuy={() => handleBuy(upgrade.id)}
+      />
+    );
+  };
+
   const handleBuy = (upgradeId: string) => {
     const selectedUpgrade = upgrades.find(
       (upgrade) => upgrade.id === upgradeId,
@@ -37,12 +80,15 @@ export default function Shop() {
 
     dispatch({ type: "BUY_UPGRADE", payload: { upgradeId } });
 
+    const upgradeEffectText =
+      selectedUpgrade.category === "click"
+        ? `+${formatMoney(selectedUpgrade.clickValueGain)} clic`
+        : selectedUpgrade.category === "income"
+          ? `+${formatMoney(selectedUpgrade.incomePerSecond)} / sec`
+          : `+${Math.round(selectedUpgrade.productionBoost * 100)}% production`;
+
     setFeedbackMessage(
-      `Achat réussi: ${selectedUpgrade.name} (+${formatMoney(
-        selectedUpgrade.category === "click"
-          ? selectedUpgrade.clickValueGain
-          : selectedUpgrade.incomePerSecond,
-      )})`,
+      `Achat réussi: ${selectedUpgrade.name} (${upgradeEffectText})`,
     );
   };
 
@@ -53,11 +99,39 @@ export default function Shop() {
           padding: 20px;
         }
 
+        .shop-intro {
+          margin: 0 0 18px;
+          color: #64748b;
+        }
+
+        .shop-section {
+          margin-top: 24px;
+        }
+
+        .shop-section-header {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 14px;
+        }
+
+        .shop-section-header h2 {
+          margin: 0;
+          font-size: 18px;
+          color: #0f172a;
+        }
+
+        .shop-section-header p {
+          margin: 0;
+          color: #64748b;
+          font-size: 14px;
+        }
+
         .shop-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
           gap: 20px;
-          margin-top: 20px;
         }
 
         .shop-feedback {
@@ -65,36 +139,71 @@ export default function Shop() {
           color: #374151;
           font-size: 14px;
         }
+
+        .shop-empty {
+          padding: 16px;
+          border: 1px dashed #cbd5e1;
+          border-radius: 14px;
+          color: #64748b;
+          background: #f8fafc;
+        }
       `}</style>
 
       <div className="shop-container">
-        <GameHeader amount={money} incomePerSecond={incomePerSecond} />
+        <GameHeader />
         <h1>Shop - Upgrades</h1>
-        <p>Acheter des upgrades pour augmenter vos revenus.</p>
+        <p className="shop-intro">
+          Achetez des upgrades de clic pour booster vos actions manuelles, ou
+          des upgrades d'income/s pour faire tourner l'économie en continu.
+        </p>
 
-        <div className="shop-grid">
-          {upgrades.map((upgrade) => {
-            const currentCost = getCurrentCost(upgrade);
-            const canBuy = money >= currentCost;
+        <section className="shop-section">
+          <div className="shop-section-header">
+            <h2>Upgrades de clic</h2>
+            <p>Augmentent la valeur de chaque clic.</p>
+          </div>
+          <div className="shop-grid">
+            {clickUpgrades.length > 0 ? (
+              clickUpgrades.map(renderUpgradeCard)
+            ) : (
+              <div className="shop-empty">
+                Aucun upgrade de clic disponible.
+              </div>
+            )}
+          </div>
+        </section>
 
-            return (
-              <UpgradeCard
-                key={upgrade.id}
-                name={upgrade.name}
-                count={upgrade.count}
-                cost={currentCost}
-                kind={upgrade.category}
-                gain={
-                  upgrade.category === "click"
-                    ? upgrade.clickValueGain
-                    : upgrade.incomePerSecond
-                }
-                canBuy={canBuy}
-                onBuy={() => handleBuy(upgrade.id)}
-              />
-            );
-          })}
-        </div>
+        <section className="shop-section">
+          <div className="shop-section-header">
+            <h2>Upgrades de production</h2>
+            <p>Boostent toute la génération de monnaie.</p>
+          </div>
+          <div className="shop-grid">
+            {productionUpgrades.length > 0 ? (
+              productionUpgrades.map(renderUpgradeCard)
+            ) : (
+              <div className="shop-empty">
+                Aucun upgrade de production disponible.
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="shop-section">
+          <div className="shop-section-header">
+            <h2>Upgrades d'income/s</h2>
+            <p>Augmentent les revenus automatiques.</p>
+          </div>
+          <div className="shop-grid">
+            {incomeUpgrades.length > 0 ? (
+              incomeUpgrades.map(renderUpgradeCard)
+            ) : (
+              <div className="shop-empty">
+                Aucun upgrade d'income/s disponible.
+              </div>
+            )}
+          </div>
+        </section>
 
         <div className="shop-feedback">{feedbackMessage}</div>
       </div>

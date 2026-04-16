@@ -4,16 +4,18 @@ import { useGameStore } from "../state/gameStore";
 
 export default function Game() {
   const {
-    state: { money, incomePerSecond, clickValue },
+    state: { clickValue, productionMultiplier },
     dispatch,
   } = useGameStore();
 
+  const effectiveClickValue = clickValue * productionMultiplier;
+
   return (
     <div>
-      <GameHeader amount={money} incomePerSecond={incomePerSecond} />
+      <GameHeader />
       <div style={{ textAlign: "center" }}>
         <ClickButton
-          clickValue={clickValue}
+          clickValue={effectiveClickValue}
           onClick={() => dispatch({ type: "CLICK" })}
         />
       </div>

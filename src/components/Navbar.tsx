@@ -9,7 +9,7 @@ interface NavbarProps {
 
 export default function Navbar({ onNavigate, currentPath }: NavbarProps) {
   const {
-    state: { money, incomePerSecond },
+    state: { money, clickValue, incomePerSecond, productionMultiplier },
   } = useGameStore();
 
   const isActive = (path: string) => currentPath === path;
@@ -33,9 +33,39 @@ export default function Navbar({ onNavigate, currentPath }: NavbarProps) {
           }
 
           .navbar-stats {
-            color: #374151;
-            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 600;
             white-space: nowrap;
+          }
+
+          .navbar-stat {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+          }
+
+          .navbar-stat.primary {
+            background: #dbeafe;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+          }
+
+          .navbar-stat.success {
+            background: #dcfce7;
+            border-color: #86efac;
+            color: #166534;
+          }
+
+          .navbar-stat.warning {
+            background: #ede9fe;
+            border-color: #c4b5fd;
+            color: #6d28d9;
           }
 
           .navbar a {
@@ -69,8 +99,16 @@ export default function Navbar({ onNavigate, currentPath }: NavbarProps) {
         </div>
 
         <div className="navbar-stats">
-          Money: ${formatMoney(money)} | Income/sec: $
-          {formatMoney(incomePerSecond)}
+          <span className="navbar-stat primary">
+            Money: ${formatMoney(money)}
+          </span>
+          <span className="navbar-stat">Click: +{formatMoney(clickValue)}</span>
+          <span className="navbar-stat success">
+            Income/sec: +{formatMoney(incomePerSecond)}
+          </span>
+          <span className="navbar-stat warning">
+            Prod x{productionMultiplier.toFixed(2)}
+          </span>
         </div>
       </nav>
     </>

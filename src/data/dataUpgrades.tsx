@@ -1,10 +1,11 @@
 export interface Upgrade {
   id: string;
   name: string;
-  category: "click" | "income";
+  category: "click" | "income" | "production";
   initialCost: number;
   incomePerSecond: number;
   clickValueGain: number;
+  productionBoost: number;
   count: number;
   description: string;
 }
@@ -17,6 +18,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 10,
     incomePerSecond: 0,
     clickValueGain: 1,
+    productionBoost: 0,
     count: 0,
     description:
       "Améliore votre souris pour augmenter la valeur de chaque clic.",
@@ -28,6 +30,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 60,
     incomePerSecond: 0,
     clickValueGain: 3,
+    productionBoost: 0,
     count: 0,
     description:
       "Automatise vos actions répétitives pour des clics plus rentables.",
@@ -39,6 +42,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 250,
     incomePerSecond: 0,
     clickValueGain: 8,
+    productionBoost: 0,
     count: 0,
     description:
       "Entraîne vos doigts pour rendre chaque clic beaucoup plus efficace.",
@@ -50,6 +54,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 1200,
     incomePerSecond: 0,
     clickValueGain: 20,
+    productionBoost: 0,
     count: 0,
     description: "Ajoute un boost instantané à la puissance de vos clics.",
   },
@@ -60,9 +65,130 @@ export const Upgrades: Upgrade[] = [
     initialCost: 5000,
     incomePerSecond: 0,
     clickValueGain: 50,
+    productionBoost: 0,
     count: 0,
     description:
       "Un assistant IA qui optimise automatiquement la valeur de vos clics.",
+  },
+  {
+    id: "precision-gloves",
+    name: "Precision Gloves",
+    category: "click",
+    initialCost: 12000,
+    incomePerSecond: 0,
+    clickValueGain: 120,
+    productionBoost: 0,
+    count: 0,
+    description:
+      "Des gants de précision pour rendre chaque clic nettement plus puissant.",
+  },
+  {
+    id: "quantum-tap",
+    name: "Quantum Tap",
+    category: "click",
+    initialCost: 50000,
+    incomePerSecond: 0,
+    clickValueGain: 350,
+    productionBoost: 0,
+    count: 0,
+    description:
+      "Un système quantique qui multiplie la valeur brute de vos clics.",
+  },
+  {
+    id: "click-singularity",
+    name: "Click Singularity",
+    category: "click",
+    initialCost: 250000,
+    incomePerSecond: 0,
+    clickValueGain: 1200,
+    productionBoost: 0,
+    count: 0,
+    description:
+      "Une technologie extrême qui fait exploser la puissance de vos clics.",
+  },
+  {
+    id: "hyper-finger",
+    name: "Hyper Finger",
+    category: "click",
+    initialCost: 1000000,
+    incomePerSecond: 0,
+    clickValueGain: 5000,
+    productionBoost: 0,
+    count: 0,
+    description:
+      "Un entraînement cybernétique pour transformer chaque clic en jackpot.",
+  },
+  {
+    id: "click-neural-network",
+    name: "Click Neural Network",
+    category: "click",
+    initialCost: 5000000,
+    incomePerSecond: 0,
+    clickValueGain: 18000,
+    productionBoost: 0,
+    count: 0,
+    description:
+      "Un réseau neuronal dédié aux clics pour maximiser la valeur de vos actions.",
+  },
+  {
+    id: "conversion-funnel",
+    name: "Conversion Funnel",
+    category: "production",
+    initialCost: 900,
+    incomePerSecond: 0,
+    clickValueGain: 0,
+    productionBoost: 0.1,
+    count: 0,
+    description:
+      "Un meilleur tunnel de conversion qui augmente toutes vos sources de revenus.",
+  },
+  {
+    id: "pricing-engine",
+    name: "Pricing Engine",
+    category: "production",
+    initialCost: 3500,
+    incomePerSecond: 0,
+    clickValueGain: 0,
+    productionBoost: 0.2,
+    count: 0,
+    description:
+      "Un moteur de tarification qui rend chaque action plus rentable.",
+  },
+  {
+    id: "market-expansion",
+    name: "Market Expansion",
+    category: "production",
+    initialCost: 14000,
+    incomePerSecond: 0,
+    clickValueGain: 0,
+    productionBoost: 0.35,
+    count: 0,
+    description:
+      "L'expansion sur de nouveaux marchés augmente toute votre production de monnaie.",
+  },
+  {
+    id: "growth-loops",
+    name: "Growth Loops",
+    category: "production",
+    initialCost: 65000,
+    incomePerSecond: 0,
+    clickValueGain: 0,
+    productionBoost: 0.75,
+    count: 0,
+    description:
+      "Des boucles de croissance qui amplifient toutes les sources de revenus.",
+  },
+  {
+    id: "ai-optimizer",
+    name: "AI Optimizer",
+    category: "production",
+    initialCost: 300000,
+    incomePerSecond: 0,
+    clickValueGain: 0,
+    productionBoost: 1.5,
+    count: 0,
+    description:
+      "Une IA qui optimise votre économie et booste toute la production.",
   },
   {
     id: "dev-junior",
@@ -71,6 +197,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 10,
     incomePerSecond: 1,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Un développeur junior pour aider à construire votre produit.",
   },
@@ -81,6 +208,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 50,
     incomePerSecond: 3,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description:
       "Un développeur senior pour accélérer le développement de votre produit.",
@@ -92,6 +220,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 120,
     incomePerSecond: 5,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description:
       "Un serveur cloud pour héberger votre application et gérer plus de trafic.",
@@ -103,8 +232,21 @@ export const Upgrades: Upgrade[] = [
     initialCost: 200,
     incomePerSecond: 7,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Une campagne de marketing pour attirer plus d'utilisateurs.",
+  },
+  {
+    id: "growth-hacking",
+    name: "Growth Hacking",
+    category: "income",
+    initialCost: 300,
+    incomePerSecond: 10,
+    clickValueGain: 0,
+    productionBoost: 0,
+    count: 0,
+    description:
+      "Des techniques de croissance pour faire entrer plus d'utilisateurs chaque seconde.",
   },
   {
     id: "cto",
@@ -113,8 +255,21 @@ export const Upgrades: Upgrade[] = [
     initialCost: 500,
     incomePerSecond: 15,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Un CTO pour guider la vision technique de votre startup.",
+  },
+  {
+    id: "content-network",
+    name: "Content Network",
+    category: "income",
+    initialCost: 1500,
+    incomePerSecond: 30,
+    clickValueGain: 0,
+    productionBoost: 0,
+    count: 0,
+    description:
+      "Un réseau de contenu qui attire des visiteurs de manière régulière.",
   },
   {
     id: "data-center",
@@ -123,6 +278,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 2000,
     incomePerSecond: 50,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Un data center pour stocker et gérer vos données.",
   },
@@ -133,8 +289,21 @@ export const Upgrades: Upgrade[] = [
     initialCost: 5000,
     incomePerSecond: 100,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Intégrez l'IA pour automatiser et optimiser vos processus.",
+  },
+  {
+    id: "sales-team",
+    name: "Sales Team",
+    category: "income",
+    initialCost: 7500,
+    incomePerSecond: 180,
+    clickValueGain: 0,
+    productionBoost: 0,
+    count: 0,
+    description:
+      "Une équipe commerciale qui transforme davantage de prospects en revenus.",
   },
   {
     id: "blockchain",
@@ -143,6 +312,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 10000,
     incomePerSecond: 200,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Technologie blockchain pour sécuriser vos transactions.",
   },
@@ -153,6 +323,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 25000,
     incomePerSecond: 500,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Calculateurs quantiques pour des performances extrêmes.",
   },
@@ -163,6 +334,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 50000,
     incomePerSecond: 1000,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Expandez votre présence dans le monde entier.",
   },
@@ -173,6 +345,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 100000,
     incomePerSecond: 2000,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description:
       "Laboratoire de recherche pour innover et développer de nouveaux produits.",
@@ -184,6 +357,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 250000,
     incomePerSecond: 5000,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Technologie spatiale pour un avenir au-delà de la Terre.",
   },
@@ -194,6 +368,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 500000,
     incomePerSecond: 10000,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Interface neurale pour une intégration homme-machine.",
   },
@@ -204,6 +379,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 1000000,
     incomePerSecond: 25000,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Machine à remonter le temps pour optimiser l'histoire.",
   },
@@ -214,6 +390,7 @@ export const Upgrades: Upgrade[] = [
     initialCost: 5000000,
     incomePerSecond: 100000,
     clickValueGain: 0,
+    productionBoost: 0,
     count: 0,
     description: "Accès au multivers pour des ressources infinies.",
   },

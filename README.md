@@ -133,3 +133,21 @@ Tests à faire dans l’application:
 2. Acheter un upgrade dans Shop augmente `income/sec` dans Shop et dans la Navbar.
 3. Rester sur Shop pendant plusieurs secondes: `money` continue d’augmenter grâce au tick global.
 4. Passer de Game à Shop puis à Stats: les valeurs restent synchronisées partout.
+
+## Analyse critique
+
+1. Pourquoi ne pas sauvegarder à chaque tick sans throttle ?
+
+Parce que ça ferait trop d'écritures dans `localStorage` et ça pourrait ralentir le jeu.
+
+2. Que se passe-t-il si le JSON est corrompu ?
+
+On l'ignore et on repart avec l'état par défaut pour éviter un crash.
+
+3. À quoi sert `version` dans la sauvegarde ?
+
+Elle permet de gérer les futures évolutions du format de sauvegarde.
+
+4. Quelles données avez-vous choisi de sauvegarder, et pourquoi ?
+
+On sauvegarde `money`, `clickValue`, `incomePerSecond`, `upgrades`, `totalClicks` et `totalEarned` pour retrouver la partie exactement comme elle était.
