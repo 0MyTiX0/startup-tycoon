@@ -1,6 +1,8 @@
+import React, { memo } from "react";
 import { formatMoney } from "../utils/formatNumber";
 
 interface UpgradeCardProps {
+  id?: string;
   name: string;
   description: string;
   count: number;
@@ -8,10 +10,23 @@ interface UpgradeCardProps {
   kind: "click" | "income" | "production";
   gain: number;
   canBuy: boolean;
-  onBuy: () => void;
+  onBuy?: (id?: string) => void;
 }
 
-export default function UpgradeCard({
+export default memo(
+  UpgradeCard,
+  (prev, next) =>
+    prev.name === next.name &&
+    prev.description === next.description &&
+    prev.count === next.count &&
+    prev.cost === next.cost &&
+    prev.kind === next.kind &&
+    prev.gain === next.gain &&
+    prev.canBuy === next.canBuy,
+);
+
+function UpgradeCard({
+  id,
   name,
   description,
   count,
@@ -21,6 +36,15 @@ export default function UpgradeCard({
   canBuy,
   onBuy,
 }: UpgradeCardProps) {
+  const DEBUG_RENDERS =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("renderLogs") === "1";
+
+  if (DEBUG_RENDERS) {
+    // Use a concise label to count renders during instrumentation only
+    // Remove these logs for production/final commit
+    console.count(`UpgradeCard render: ${name}`);
+  }
   const kindLabel =
     kind === "click"
       ? "Upgrade de clic"
@@ -204,7 +228,11 @@ export default function UpgradeCard({
           <div className="upgrade-description">{description}</div>
         </div>
         <div className="upgrade-footer">
-          <button className="upgrade-button" onClick={onBuy} disabled={!canBuy}>
+          <button
+            className="upgrade-button"
+            onClick={() => onBuy?.(id)}
+            disabled={!canBuy}
+          >
             Acheter
           </button>
           <div className="upgrade-note">Niveau {count}</div>

@@ -1,9 +1,16 @@
-import { useState, useEffect, MouseEvent, ReactNode } from "react";
+import {
+  useState,
+  useEffect,
+  MouseEvent,
+  ReactNode,
+  Suspense,
+  lazy,
+} from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Game from "./pages/game";
-import Shop from "./pages/shop";
-import Stats from "./pages/stats";
+const Shop = lazy(() => import("./pages/shop"));
+const Stats = lazy(() => import("./pages/stats"));
 import Settings from "./pages/settings";
 import NotFound from "./pages/notFound";
 import { useGameStore } from "./state/gameStore";
@@ -66,7 +73,9 @@ export default function App() {
     >
       <Navbar onNavigate={navigate} currentPath={currentPath} />
 
-      <main style={{ flex: 1, padding: "20px" }}>{Component}</main>
+      <main style={{ flex: 1, padding: "20px" }}>
+        <Suspense fallback={<div>Chargement...</div>}>{Component}</Suspense>
+      </main>
 
       <Footer />
     </div>

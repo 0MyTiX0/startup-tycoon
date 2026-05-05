@@ -151,3 +151,60 @@ Elle permet de gérer les futures évolutions du format de sauvegarde.
 4. Quelles données avez-vous choisi de sauvegarder, et pourquoi ?
 
 On sauvegarde `money`, `clickValue`, `incomePerSecond`, `upgrades`, `totalClicks` et `totalEarned` pour retrouver la partie exactement comme elle était.
+
+## TP 11 — Performance : Mesurer, Comprendre, Optimiser
+
+Résumé des actions réalisées dans le dépôt pour le TP :
+
+- **Instrumentation** : ajout d'un compteur de re-renders activable via l'URL `?renderLogs=1` pour `Navbar`, `Shop` et `UpgradeCard`.
+- **Optimisation 1 (re-renders)** : `UpgradeCard` est maintenant enveloppé par `React.memo` avec un comparateur peu coûteux. Le `onBuy` envoyé aux cartes est une fonction stable (`useCallback`) et on passe `id` plutôt qu'une closure recréée.
+- **Optimisation 2 (recherche + debounce)** : champ de recherche sur `/shop` avec debounce 300ms (réduit les filtres / re-renders lors de la frappe).
+- **Optimisation 3 (code-splitting)** : pages `/shop` et `/stats` chargées à la demande via `React.lazy` + `Suspense`.
+
+Comment reproduire les mesures (conseil pas-à-pas) :
+
+1. Lancer l'app localement :
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+2. Baseline (avant optimisation) — _si vous voulez comparer, effectuez cette étape avant mes commits_ :
+   - Ouvrir Chrome DevTools → Lighthouse (mode Navigation) → lancer pour `/` et `/shop` → capture des scores et métriques (FCP, LCP, TBT).
+   - DevTools → Performance → enregistrez 5–10s sur `/shop` pendant que le tick tourne → observez long tasks, scripting/painting.
+   - Pour compter les re-renders : ouvrez `/shop?renderLogs=1` puis observez la console (console.count affiche les re-renders par composant).
+
+3. Mesures avec les optimisations appliquées (après ce commit) :
+   - Ouvrir `/shop?renderLogs=1` et refaire les mêmes enregistrements Lighthouse / Performance.
+   - Vérifier dans Network que les chunks `shop` et `stats` se chargent à la navigation (code-splitting).
+
+Questions demandées (réponses succinctes) :
+
+1. Qu’est-ce qui re-renderait “inutilement” avant optimisation ?
+
+- La page `Shop` et ses `UpgradeCard` se re-rendaient à chaque tick parce que le `money` global changeait et que chaque carte recevait des props (notamment des fonctions) recréées à chaque rendu parent. Cela provoquait un grand nombre de renders inutiles des cartes qui n'avaient pas changé.
+
+2. Quelles optimisations ont eu un impact réel ?
+
+- `React.memo` sur `UpgradeCard` + envoi d'un handler `onBuy` stable réduit fortement les re-renders des cartes.
+- Debounce sur la recherche évite les recalculs/filters à chaque frappe.
+- Lazy-loading (`React.lazy`) allège le bundle initial et déplace le coût de chargement lors de la navigation.
+
+3. Quelle optimisation vous semble la plus rentable ?
+
+- Le `React.memo` + stabilité des handlers : souvent le meilleur rapport effort/impact pour des listes de composants réutilisables.
+
+4. Pourquoi le tick est un bon révélateur de problèmes de perf ?
+
+- Le tick actualise le state global toutes les secondes; il met en lumière les renders en cascade et les allocations/fonctions recréées à chaque rendu, montrant immédiatement les composants qui subissent des re-renders inutiles.
+
+5. Quelles optimisations vous n’avez PAS faites, et pourquoi ?
+
+- Sélection fine via context selector (ex : `use-context-selector`) : offre des gains supplémentaires mais nécessite une refactorisation plus importante du store.
+- Virtualisation des listes : non nécessaire ici (nombre d'upgrades réduit), mais utile pour très longues listes.
+
+Notes finales:
+
+- Activez `?renderLogs=1` pour voir les `console.count` temporaires. Retirez ce flag pour le comportement normal.
+- Les captures Lighthouse / Performance doivent être prises manuellement dans DevTools et jointes comme preuves.

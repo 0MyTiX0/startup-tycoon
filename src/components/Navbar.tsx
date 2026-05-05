@@ -12,6 +12,14 @@ export default function Navbar({ onNavigate, currentPath }: NavbarProps) {
     state: { money, clickValue, incomePerSecond, productionMultiplier },
   } = useGameStore();
 
+  const DEBUG_RENDERS =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("renderLogs") === "1";
+
+  if (DEBUG_RENDERS) {
+    console.count("Navbar render");
+  }
+
   const isActive = (path: string) => currentPath === path;
 
   return (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import GameHeader from "../components/GameHeader";
 import UpgradeCard from "../components/UpgradeCard";
 import { useGameStore } from "../state/gameStore";
@@ -14,16 +14,40 @@ export default function Shop() {
     "Sélectionnez un upgrade à acheter.",
   );
 
+  const DEBUG_RENDERS =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("renderLogs") === "1";
+
+  if (DEBUG_RENDERS) {
+    console.count("Shop render");
+  }
+
+  // Search + debounce
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedTerm, setDebouncedTerm] = useState("");
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 300);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
+
   const getCurrentCost = (upgrade: (typeof upgrades)[number]) =>
     Math.round(upgrade.initialCost * Math.pow(1.15, upgrade.count));
 
-  const sortedUpgrades = [...upgrades].sort((firstUpgrade, secondUpgrade) => {
-    if (firstUpgrade.category !== secondUpgrade.category) {
-      return firstUpgrade.initialCost - secondUpgrade.initialCost;
-    }
+  const sortedUpgrades = useMemo(() => {
+    const all = [...upgrades].sort((firstUpgrade, secondUpgrade) => {
+      if (firstUpgrade.category !== secondUpgrade.category) {
+        return firstUpgrade.initialCost - secondUpgrade.initialCost;
+      }
 
-    return firstUpgrade.initialCost - secondUpgrade.initialCost;
-  });
+      return firstUpgrade.initialCost - secondUpgrade.initialCost;
+    });
+
+    if (!debouncedTerm) return all;
+
+    const term = debouncedTerm.toLowerCase();
+    return all.filter((u) => u.name.toLowerCase().includes(term));
+  }, [upgrades, debouncedTerm]);
 
   const clickUpgrades = sortedUpgrades.filter(
     (upgrade) => upgrade.category === "click",
@@ -35,6 +59,16 @@ export default function Shop() {
     (upgrade) => upgrade.category === "income",
   );
 
+  // Stable onBuy handler to avoid recreating functions on each tick
+  const onBuyGlobal = useCallback(
+    (upgradeId?: string) => {
+      if (!upgradeId) return;
+      dispatch({ type: "BUY_UPGRADE", payload: { upgradeId } });
+      setFeedbackMessage("Achat envoyé.");
+    },
+    [dispatch],
+  );
+
   const renderUpgradeCard = (upgrade: (typeof upgrades)[number]) => {
     const currentCost = getCurrentCost(upgrade);
     const canBuy = money >= currentCost;
@@ -42,6 +76,7 @@ export default function Shop() {
     return (
       <UpgradeCard
         key={upgrade.id}
+        id={upgrade.id}
         name={upgrade.name}
         description={upgrade.description}
         count={upgrade.count}
@@ -55,7 +90,7 @@ export default function Shop() {
               : upgrade.productionBoost
         }
         canBuy={canBuy}
-        onBuy={() => handleBuy(upgrade.id)}
+        onBuy={onBuyGlobal}
       />
     );
   };
@@ -156,6 +191,21 @@ export default function Shop() {
           Achetez des upgrades de clic pour booster vos actions manuelles, ou
           des upgrades d'income/s pour faire tourner l'économie en continu.
         </p>
+
+        <div style={{ margin: "12px 0" }}>
+          <input
+            aria-label="Recherche d'upgrades"
+            placeholder="Rechercher un upgrade..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: 8,
+              borderRadius: 8,
+              width: "100%",
+              maxWidth: 420,
+            }}
+          />
+        </div>
 
         <section className="shop-section">
           <div className="shop-section-header">
