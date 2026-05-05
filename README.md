@@ -183,7 +183,7 @@ Questions demandées (réponses succinctes) :
 
 1. Qu’est-ce qui re-renderait “inutilement” avant optimisation ?
 
-- La page `Shop` et ses `UpgradeCard` se re-rendaient à chaque tick parce que le `money` global changeait et que chaque carte recevait des props (notamment des fonctions) recréées à chaque rendu parent. Cela provoquait un grand nombre de renders inutiles des cartes qui n'avaient pas changé.
+- La page `Shop` et ses `UpgradeCard` se re-rendaient à chaque tick parce que le `money` global changeait et que chaque carte recevait des props recréées à chaque rendu parent. Cela provoquait des renders inutiles des cartes qui n'avaient pas changé.
 
 2. Quelles optimisations ont eu un impact réel ?
 
@@ -197,7 +197,7 @@ Questions demandées (réponses succinctes) :
 
 4. Pourquoi le tick est un bon révélateur de problèmes de perf ?
 
-- Le tick actualise le state global toutes les secondes; il met en lumière les renders en cascade et les allocations/fonctions recréées à chaque rendu, montrant immédiatement les composants qui subissent des re-renders inutiles.
+- Le tick actualise le state global toutes les secondes; il met en lumière les renders en cascade et les fonctions recréées à chaque rendu, montrant immédiatement les composants qui subissent des re-renders inutiles.
 
 5. Quelles optimisations vous n’avez PAS faites, et pourquoi ?
 
@@ -208,3 +208,141 @@ Notes finales:
 
 - Activez `?renderLogs=1` pour voir les `console.count` temporaires. Retirez ce flag pour le comportement normal.
 - Les captures Lighthouse / Performance doivent être prises manuellement dans DevTools et jointes comme preuves.
+
+## TP 12 — SSR / SSG : Comparer CSR vs rendu serveur
+
+### Choix technique
+
+Pour ce TP, le jeu principal reste une SPA React en CSR dans ce dépôt, et la partie publique est traitée dans un mini-projet séparé Next.js : [startup-tycoon-public](startup-tycoon-public/README.md).
+
+Pourquoi ce choix :
+
+- on ne casse pas le jeu existant;
+- on montre un vrai rendu serveur ou statique sans migration risquée;
+- on peut comparer clairement CSR et SSR/SSG avec le même contenu métier.
+
+### Page publique demandée
+
+La page [startup-tycoon-public/pages/public-stats.js](startup-tycoon-public/pages/public-stats.js) expose `/public-stats` avec :
+
+- le titre `Startup Tycoon — Public Stats`;
+- `Total earned`;
+- `Total clicks`;
+- `Best income/sec`.
+
+Cette page utilise `getStaticProps`, donc le contenu est généré à la build. Le HTML initial contient déjà les métriques avant l’exécution du JavaScript.
+
+### Source de données
+
+La donnée publique vient du fichier [startup-tycoon-public/data/public-stats.json](startup-tycoon-public/data/public-stats.json).
+
+Ce choix est volontairement simple :
+
+- facile à lire;
+- compatible avec SSG;
+- évite `localStorage`, qui n’existe pas côté serveur;
+- permet de prouver que le HTML initial contient déjà les valeurs.
+
+### SSR, SSG, CSR
+
+CSR (Client-Side Rendering) :
+
+- le navigateur charge d’abord un HTML très vide;
+- React exécute ensuite le JavaScript pour construire l’interface;
+- le contenu visible arrive plus tard;
+- c’est le modèle de la SPA principale de ce projet.
+
+SSR (Server-Side Rendering) :
+
+- le serveur fabrique le HTML à la requête;
+- le navigateur reçoit déjà du contenu lisible;
+- ensuite React hydrate la page pour la rendre interactive.
+
+SSG (Static Site Generation) :
+
+- le HTML est produit au build time;
+- le serveur renvoie un fichier statique déjà rempli;
+- c’est souvent la solution la plus simple pour du contenu public peu dynamique.
+
+### Hydration
+
+L’hydration est l’étape où React reprend le HTML déjà affiché par le serveur ou par le build et y attache les écouteurs, l’état et la logique d’interaction.
+
+En pratique :
+
+1. l’utilisateur voit le HTML tout de suite;
+2. React charge le bundle JavaScript;
+3. React compare le rendu attendu avec le HTML existant;
+4. la page devient interactive sans reconstruire tout l’écran depuis zéro.
+
+SSR ne veut donc pas dire “sans JavaScript”. Cela veut dire “HTML prêt plus tôt”, puis JS pour l’interactivité.
+
+### Ce qu’il faut vérifier dans View Source
+
+Pour prouver le rendu SSR/SSG, il faut ouvrir `/public-stats`, puis utiliser View Page Source et vérifier que les métriques sont déjà présentes dans le HTML initial.
+
+À comparer avec une simple inspection du DOM dans Elements :
+
+- View Source montre le HTML initial reçu;
+- Elements montre le DOM après exécution du JS et peut donc masquer la différence entre CSR et SSR.
+
+### Comparaison CSR vs SSR/SSG
+
+Comparaison de [src/pages/stats.tsx](src/pages/stats.tsx) côté jeu et de `/public-stats` côté Next.js.
+
+SEO :
+
+- CSR pur : les robots voient d’abord peu de contenu utile;
+- SSR/SSG : le contenu principal est présent dans le HTML initial, donc plus simple à indexer.
+
+FCP / LCP :
+
+- CSR : le premier affichage utile dépend davantage du chargement du JavaScript;
+- SSR/SSG : le contenu arrive plus tôt, donc FCP et souvent LCP s’améliorent.
+
+Coût serveur :
+
+- CSR : le serveur a peu de travail, mais le navigateur fait plus d’efforts;
+- SSR : le serveur calcule le HTML à chaque requête, donc coût serveur plus élevé;
+- SSG : coût serveur faible à l’exécution, car le HTML est déjà généré.
+
+### Preuves à produire
+
+Je n’ai pas capturé les images à votre place dans ce README, mais voici exactement ce qu’il faut joindre :
+
+- une capture Lighthouse pour `/stats`;
+- une capture Lighthouse pour `/public-stats`;
+- une capture View Source de `/public-stats` montrant les métriques dans le HTML;
+- si besoin, une capture du projet Next en local pour montrer le rendu public.
+
+### Analyse courte demandée
+
+1. Pourquoi le HTML est visible avant JS ?
+
+Parce qu’en SSR ou SSG, le serveur ou le build envoie directement un HTML déjà rempli. Le navigateur peut l’afficher immédiatement avant d’exécuter React.
+
+2. Ce que fait l’hydration
+
+Hydration relie le HTML statique aux composants React pour rendre la page interactive sans repartir d’une page vide.
+
+3. Pourquoi SSR n’est pas “pas de JS”
+
+Parce que React doit quand même charger son bundle pour hydrater la page, gérer les événements et permettre les interactions.
+
+4. Ce qui change pour le SEO
+
+Le contenu important est disponible tout de suite dans le HTML initial, donc les moteurs d’indexation ont plus facilement accès aux informations utiles.
+
+5. Ce qui change pour FCP/LCP
+
+Le rendu serveur ou statique peut afficher du contenu plus tôt que le CSR pur, ce qui réduit souvent le temps avant le premier affichage utile.
+
+6. Le coût côté serveur
+
+Le serveur doit produire ou servir du HTML déjà prêt. Avec SSR, ce coût existe à chaque requête. Avec SSG, il est surtout déplacé au build time.
+
+### Résumé
+
+- CSR convient bien à une SPA riche comme le jeu principal.
+- SSR/SSG convient bien à une page publique simple comme `/public-stats`.
+- Le mini-projet Next.js permet de démontrer le rendu initial, la hydration et la différence avec la SPA sans migrer tout le jeu.
